@@ -25,6 +25,7 @@ variable "schema" {
 }
 
 variable "schema_encoding" {
+  default     = "ENCODING_UNSPECIFIED"
   description = "The encoding of messages validated against schema. Default value is ENCODING_UNSPECIFIED. Possible values are: ENCODING_UNSPECIFIED, JSON, BINARY."
   type        = string
 
