@@ -14,27 +14,6 @@ variable "message_retention_duration" {
   }
 }
 
-variable "schema" {
-  description = "The name of the schema that messages published should be validated against."
-  type        = string
-
-  validation {
-    condition     = can(regex("projects/[^/]+/schemas/[^/]+", var.schema))
-    error_message = "value must be in the format projects/{project}/schemas/{schema}"
-  }
-}
-
-variable "schema_encoding" {
-  default     = "ENCODING_UNSPECIFIED"
-  description = "The encoding of messages validated against schema. Default value is ENCODING_UNSPECIFIED. Possible values are: ENCODING_UNSPECIFIED, JSON, BINARY."
-  type        = string
-
-  validation {
-    condition     = contains(["BINARY", "JSON", "ENCODING_UNSPECIFIED"], var.schema_encoding)
-    error_message = "Value must be one of: BINARY, JSON, ENCODING_UNSPECIFIED"
-  }
-}
-
 variable "topic_name" {
   description = "Name of the topic."
   type        = string
