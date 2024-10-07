@@ -4,7 +4,7 @@ variable "labels" {
 }
 
 variable "message_retention_duration" {
-  default     = null
+  default     = "2678400s"
   description = "Indicates the minimum duration to retain a message after it is published to the topic. If this field is set, messages published to the topic in the last messageRetentionDuration are always available to subscribers. For instance, it allows any attached subscription to seek to a timestamp that is up to messageRetentionDuration in the past. If this field is not set, message retention is controlled by settings on individual subscriptions."
   type        = string
 
