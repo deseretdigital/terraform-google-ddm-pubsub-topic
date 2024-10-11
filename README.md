@@ -35,7 +35,7 @@ This module creates a Google PubSub Topic.
 terraform {
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "~> 6.0"
     }
   }
@@ -46,8 +46,8 @@ provider "google" {
 }
 
 module "pubsub_topic_module" {
-  source  = "deseretdigital/ddm-pubsub-topic/google"
-  version = "~> 1.0.0"
+  source     = "deseretdigital/ddm-pubsub-topic/google"
+  version    = "~> 1.0.0"
   topic_name = "Example_TopicName"
 
   labels = {
