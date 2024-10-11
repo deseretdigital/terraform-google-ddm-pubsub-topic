@@ -1,6 +1,7 @@
 variable "labels" {
   description = "A set of key/value label pairs to assign to this Topic."
   type        = map(string)
+  default     = {}
 }
 
 variable "message_retention_duration" {

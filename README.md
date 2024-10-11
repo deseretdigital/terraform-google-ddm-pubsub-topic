@@ -4,42 +4,58 @@ This module creates a Google PubSub Topic.
 
 The primary point is to make the creation of these resources repeatable.
 
-# Terraform-Docs
+## Usage
 
-## Requirements
+### Basic Configuration:
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_google"></a> [google](#requirement\_google) | 6.5.0 |
+```hcl
+module "pubsub_topic_module" {
+  source  = "deseretdigital/ddm-pubsub-topic/google"
+  version = "~> 1.0.0"
 
-## Providers
+  # Required
+  topic_name = {YOUR_TOPIC_NAME}
 
-| Name | Version |
-|------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 6.5.0 |
+  # Optional
+  labels = {
+    env    = "prod"
+    region = {REGION}
+    # etc...
+  }
 
-## Modules
+  message_retention_duration = {DEFAULT_2678400s}
+}
+```
 
-No modules.
+This module creates a Google PubSub Topic. 
 
-## Resources
+#### Example Usage
 
-| Name | Type |
-|------|------|
-| [google_pubsub_topic.topic](https://registry.terraform.io/providers/hashicorp/google/6.5.0/docs/resources/pubsub_topic) | resource |
+```hcl
+terraform {
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+      version = "~> 6.0"
+    }
+  }
+}
 
-## Inputs
+provider "google" {
+  # Configuration options
+}
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_labels"></a> [labels](#input\_labels) | A set of key/value label pairs to assign to this Topic. | `map(string)` | n/a | yes |
-| <a name="input_message_retention_duration"></a> [message\_retention\_duration](#input\_message\_retention\_duration) | Indicates the minimum duration to retain a message after it is published to the topic. If this field is set, messages published to the topic in the last messageRetentionDuration are always available to subscribers. For instance, it allows any attached subscription to seek to a timestamp that is up to messageRetentionDuration in the past. If this field is not set, message retention is controlled by settings on individual subscriptions. | `string` | `null` | no |
-| <a name="input_schema"></a> [schema](#input\_schema) | The name of the schema that messages published should be validated against. | `string` | n/a | yes |
-| <a name="input_schema_encoding"></a> [schema\_encoding](#input\_schema\_encoding) | The encoding of messages validated against schema. Default value is ENCODING\_UNSPECIFIED. Possible values are: ENCODING\_UNSPECIFIED, JSON, BINARY. | `string` | n/a | yes |
-| <a name="input_topic_name"></a> [topic\_name](#input\_topic\_name) | Name of the topic. | `string` | n/a | yes |
+module "pubsub_topic_module" {
+  source  = "deseretdigital/ddm-pubsub-topic/google"
+  version = "~> 1.0.0"
+  topic_name = "Example_TopicName"
 
-## Outputs
+  labels = {
+    date   = "2024-10-11"
+    region = "us-west3"
+    env    = "prod"
+  }
 
-| Name | Description |
-|------|-------------|
-| <a name="output_topic_id"></a> [topic\_id](#output\_topic\_id) | The ID of the created Pub/Sub Topic. |
+  message_retention_duration = "84000s"
+}
+```
