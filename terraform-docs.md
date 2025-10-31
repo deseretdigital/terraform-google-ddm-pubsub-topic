@@ -2,13 +2,13 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_google"></a> [google](#requirement\_google) | 6.5.0 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | ~> 7.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 6.5.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | ~> 7.0 |
 
 ## Modules
 
@@ -18,7 +18,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [google_pubsub_topic.topic](https://registry.terraform.io/providers/hashicorp/google/6.5.0/docs/resources/pubsub_topic) | resource |
+| [google_pubsub_topic.topic](https://registry.terraform.io/providers/hashicorp/google/7.0/docs/resources/pubsub_topic) | resource |
 
 ## Inputs
 
