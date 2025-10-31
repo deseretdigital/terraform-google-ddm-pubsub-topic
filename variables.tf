@@ -1,3 +1,9 @@
+variable "project" {
+  description = "The project in which the resource belongs. If it is not provided, the provider project is used."
+  type        = string
+  default     = null
+}
+
 variable "labels" {
   description = "A set of key/value label pairs to assign to this Topic."
   type        = map(string)
@@ -13,6 +19,20 @@ variable "message_retention_duration" {
     condition     = can(regex("^\\d+s$", var.message_retention_duration))
     error_message = "Value must be a duration represented in seconds. Example: 86400s"
   }
+}
+
+variable "kms_key_name" {
+  description = "The resource name of the Cloud KMS CryptoKey to be used to protect access to messages published on this topic. Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}"
+  type        = string
+  default     = null
+}
+
+variable "message_storage_policy" {
+  description = "Policy constraining the set of Google Cloud Platform regions where messages published to the topic may be stored. If not set, messages may be stored in any region."
+  type = object({
+    allowed_persistence_regions = list(string)
+  })
+  default = null
 }
 
 variable "topic_name" {
