@@ -94,7 +94,7 @@ resource "google_pubsub_subscription_iam_member" "bigquery_subscriber" {
 # IAM: Allow Pub/Sub to read BigQuery table metadata
 resource "google_project_iam_member" "bigquery_metadata_viewer" {
   count   = local.bigquery_enabled ? 1 : 0
-  project = data.google_project.project[0].project_id
+  project = google_pubsub_topic.topic.project
   role    = "roles/bigquery.metadataViewer"
   member  = "serviceAccount:${var.pubsub_service_account}"
 }
@@ -102,7 +102,7 @@ resource "google_project_iam_member" "bigquery_metadata_viewer" {
 # IAM: Allow Pub/Sub to write to BigQuery table
 resource "google_project_iam_member" "bigquery_data_editor" {
   count   = local.bigquery_enabled ? 1 : 0
-  project = data.google_project.project[0].project_id
+  project = google_pubsub_topic.topic.project
   role    = "roles/bigquery.dataEditor"
   member  = "serviceAccount:${var.pubsub_service_account}"
 }
