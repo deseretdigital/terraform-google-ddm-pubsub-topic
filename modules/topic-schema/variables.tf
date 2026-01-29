@@ -60,3 +60,51 @@ variable "topic_name" {
   description = "Name of the topic."
   type        = string
 }
+
+# BigQuery Streaming Configuration (Optional)
+# When bigquery_table is set, a BigQuery subscription with dead letter queue is automatically created
+
+variable "bigquery_table" {
+  description = "The BigQuery table to stream messages to. Format: {projectId}.{datasetId}.{tableId}. If set, creates a BigQuery subscription with dead letter queue."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.bigquery_table == null || can(regex("^[^\\.]+\\.[^\\.]+\\.[^\\.]+$", var.bigquery_table))
+    error_message = "Value must be a valid BigQuery table name in format: {projectId}.{datasetId}.{tableId}"
+  }
+}
+
+variable "bigquery_use_topic_schema" {
+  description = "When true, use the topic's schema as the columns to write to in BigQuery."
+  type        = bool
+  default     = true
+}
+
+variable "bigquery_subscription_labels" {
+  description = "Labels for the BigQuery subscription and dead letter resources. If not set, uses the topic labels."
+  type        = map(string)
+  default     = null
+}
+
+variable "project_number" {
+  description = "The GCP project number. Required when bigquery_table is set. Used to construct the Pub/Sub service account for IAM permissions."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.project_number == null || can(regex("^\\d+$", var.project_number))
+    error_message = "Value must be a valid GCP project number (digits only)."
+  }
+}
+
+variable "max_delivery_attempts" {
+  description = "Maximum delivery attempts before sending to dead letter queue. Must be between 5 and 100."
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.max_delivery_attempts >= 5 && var.max_delivery_attempts <= 100
+    error_message = "Value must be between 5 and 100."
+  }
+}
