@@ -35,24 +35,17 @@ variable "message_storage_policy" {
   default = null
 }
 
-variable "schema" {
-  description = "The name of the schema that messages published should be validated against. Format is projects/{project}/schemas/{schema}. The value of this field will be deleted-schema if the schema has been deleted."
-  type        = string
+variable "schema_config" {
+  description = "Pub/Sub schema configuration. The module fetches the schema from ddm-protobuf and creates the google_pubsub_schema resource."
+  type = object({
+    path     = string                     # Path in ddm-protobuf repo, e.g., "pubsub/gen/listing_event/v1/raw_listing_event.pps"
+    version  = optional(string, "v1")     # Schema version for naming, e.g., "v1"
+    encoding = optional(string, "BINARY") # BINARY or JSON
+  })
 
   validation {
-    condition     = can(regex("^projects/[^/]+/schemas/[^/]+$", var.schema))
-    error_message = "Value must be in the format projects/{project}/schemas/{schema}."
-  }
-}
-
-variable "schema_encoding" {
-  description = "The encoding of the messages validated against schema. Only JSON is supported. If this is not set, the encoding will be defaulted to JSON."
-  type        = string
-  default     = "ENCODING_UNSPECIFIED"
-
-  validation {
-    condition     = contains(["BINARY", "JSON", "ENCODING_UNSPECIFIED"], var.schema_encoding)
-    error_message = "Value must be one of: BINARY, JSON, ENCODING_UNSPECIFIED"
+    condition     = var.schema_config.encoding == null || contains(["BINARY", "JSON"], var.schema_config.encoding)
+    error_message = "schema_config.encoding must be one of: BINARY, JSON"
   }
 }
 
@@ -62,17 +55,19 @@ variable "topic_name" {
 }
 
 # BigQuery Streaming Configuration (Optional)
-# When bigquery_table is set, a BigQuery subscription with dead letter queue is automatically created
+# When bigquery_config is set, creates BigQuery dataset, table, subscription with dead letter queue
 
-variable "bigquery_table" {
-  description = "The BigQuery table to stream messages to. Format: {projectId}.{datasetId}.{tableId}. If set, creates a BigQuery subscription with dead letter queue."
-  type        = string
-  default     = null
-
-  validation {
-    condition     = var.bigquery_table == null || can(regex("^[^\\.]+\\.[^\\.]+\\.[^\\.]+$", var.bigquery_table))
-    error_message = "Value must be a valid BigQuery table name in format: {projectId}.{datasetId}.{tableId}"
-  }
+variable "bigquery_config" {
+  description = "BigQuery streaming configuration. When set, creates dataset, table, subscription, and dead letter queue."
+  type = object({
+    dataset_id        = string
+    dataset_location  = optional(string, "US")
+    table_id          = string
+    schema_path       = string # Path in ddm-protobuf repo, e.g., "bq/gen/listing_event/v1/raw_listing_event.schema"
+    partition_field   = optional(string, null)
+    clustering_fields = optional(list(string), [])
+  })
+  default = null
 }
 
 variable "bigquery_use_topic_schema" {
@@ -88,7 +83,7 @@ variable "bigquery_subscription_labels" {
 }
 
 variable "project_number" {
-  description = "The GCP project number. Required when bigquery_table is set. Used to construct the Pub/Sub service account for IAM permissions."
+  description = "The GCP project number. Required when bigquery_config is set. Used to construct the Pub/Sub service account for IAM permissions."
   type        = string
   default     = null
 
