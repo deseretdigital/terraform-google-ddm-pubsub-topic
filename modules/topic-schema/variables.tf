@@ -87,14 +87,14 @@ variable "bigquery_subscription_labels" {
   default     = null
 }
 
-variable "pubsub_service_account" {
-  description = "The Pub/Sub service account for IAM permissions. Required when bigquery_table is set. Format: service-{project-number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+variable "project_number" {
+  description = "The GCP project number. Required when bigquery_table is set. Used to construct the Pub/Sub service account for IAM permissions."
   type        = string
   default     = null
 
   validation {
-    condition     = var.pubsub_service_account == null || can(regex("^service-\\d+@gcp-sa-pubsub\\.iam\\.gserviceaccount\\.com$", var.pubsub_service_account))
-    error_message = "Value must be a valid Pub/Sub service account: service-{project-number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+    condition     = var.project_number == null || can(regex("^\\d+$", var.project_number))
+    error_message = "Value must be a valid GCP project number (digits only)."
   }
 }
 

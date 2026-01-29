@@ -24,10 +24,11 @@ resource "google_pubsub_topic" "topic" {
 # ==============================================================================
 
 locals {
-  bigquery_enabled    = var.bigquery_table != null
-  subscription_labels = var.bigquery_subscription_labels != null ? var.bigquery_subscription_labels : var.labels
-  subscription_name   = "${var.topic_name}_BigQuery"
-  dead_letter_name    = "${var.topic_name}_DeadLetter"
+  bigquery_enabled       = var.bigquery_table != null
+  subscription_labels    = var.bigquery_subscription_labels != null ? var.bigquery_subscription_labels : var.labels
+  subscription_name      = "${var.topic_name}_BigQuery"
+  dead_letter_name       = "${var.topic_name}_DeadLetter"
+  pubsub_service_account = var.project_number != null ? "service-${var.project_number}@gcp-sa-pubsub.iam.gserviceaccount.com" : null
 }
 
 # BigQuery Subscription - streams messages directly to BigQuery
@@ -80,7 +81,7 @@ resource "google_pubsub_topic_iam_member" "dead_letter_publisher" {
   project = google_pubsub_topic.dead_letter[0].project
   topic   = google_pubsub_topic.dead_letter[0].id
   role    = "roles/pubsub.publisher"
-  member  = "serviceAccount:${var.pubsub_service_account}"
+  member  = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # IAM: Allow Pub/Sub to acknowledge messages from main subscription
@@ -88,7 +89,7 @@ resource "google_pubsub_subscription_iam_member" "bigquery_subscriber" {
   count        = local.bigquery_enabled ? 1 : 0
   subscription = google_pubsub_subscription.bigquery[0].id
   role         = "roles/pubsub.subscriber"
-  member       = "serviceAccount:${var.pubsub_service_account}"
+  member       = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # IAM: Allow Pub/Sub to read BigQuery table metadata
@@ -96,7 +97,7 @@ resource "google_project_iam_member" "bigquery_metadata_viewer" {
   count   = local.bigquery_enabled ? 1 : 0
   project = google_pubsub_topic.topic.project
   role    = "roles/bigquery.metadataViewer"
-  member  = "serviceAccount:${var.pubsub_service_account}"
+  member  = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # IAM: Allow Pub/Sub to write to BigQuery table
@@ -104,5 +105,5 @@ resource "google_project_iam_member" "bigquery_data_editor" {
   count   = local.bigquery_enabled ? 1 : 0
   project = google_pubsub_topic.topic.project
   role    = "roles/bigquery.dataEditor"
-  member  = "serviceAccount:${var.pubsub_service_account}"
+  member  = "serviceAccount:${local.pubsub_service_account}"
 }
