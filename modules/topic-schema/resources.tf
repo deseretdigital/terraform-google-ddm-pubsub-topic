@@ -81,12 +81,13 @@ resource "google_bigquery_dataset" "dataset" {
 
 # BigQuery Table
 resource "google_bigquery_table" "table" {
-  count      = local.bigquery_enabled ? 1 : 0
-  dataset_id = google_bigquery_dataset.dataset[0].dataset_id
-  table_id   = var.bigquery_config.table_id
-  project    = google_pubsub_topic.topic.project
-  labels     = local.subscription_labels
-  schema     = data.github_repository_file.bigquery_schema[0].content
+  count               = local.bigquery_enabled ? 1 : 0
+  dataset_id          = google_bigquery_dataset.dataset[0].dataset_id
+  table_id            = var.bigquery_config.table_id
+  project             = google_pubsub_topic.topic.project
+  labels              = local.subscription_labels
+  schema              = data.github_repository_file.bigquery_schema[0].content
+  deletion_protection = false
 
   dynamic "time_partitioning" {
     for_each = var.bigquery_config.partition_field != null ? [1] : []
