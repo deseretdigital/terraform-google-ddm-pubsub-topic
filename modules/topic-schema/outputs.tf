@@ -24,8 +24,37 @@ output "schema_settings" {
 }
 
 # ==============================================================================
-# BigQuery Streaming Outputs (only populated when bigquery_table is set)
+# Schema Outputs
 # ==============================================================================
+
+output "schema_id" {
+  description = "The ID of the created Pub/Sub schema."
+  value       = google_pubsub_schema.schema.id
+}
+
+output "schema_name" {
+  description = "The name of the created Pub/Sub schema."
+  value       = google_pubsub_schema.schema.name
+}
+
+# ==============================================================================
+# BigQuery Streaming Outputs (only populated when bigquery_config is set)
+# ==============================================================================
+
+output "bigquery_dataset_id" {
+  description = "The ID of the BigQuery dataset. Null if BigQuery streaming is not enabled."
+  value       = length(google_bigquery_dataset.dataset) > 0 ? google_bigquery_dataset.dataset[0].dataset_id : null
+}
+
+output "bigquery_table_id" {
+  description = "The ID of the BigQuery table. Null if BigQuery streaming is not enabled."
+  value       = length(google_bigquery_table.table) > 0 ? google_bigquery_table.table[0].table_id : null
+}
+
+output "bigquery_table_ref" {
+  description = "The full BigQuery table reference (project.dataset.table). Null if BigQuery streaming is not enabled."
+  value       = local.bigquery_table_ref
+}
 
 output "bigquery_subscription_id" {
   description = "The ID of the BigQuery subscription. Null if BigQuery streaming is not enabled."
