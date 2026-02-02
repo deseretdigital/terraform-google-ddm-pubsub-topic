@@ -5,13 +5,12 @@ variable "project" {
 }
 
 variable "schema_repository" {
-  description = "GitHub repository configuration for fetching schemas."
+  description = "GitHub repository configuration for fetching schemas. Required."
   type = object({
-    owner  = optional(string, "deseretdigital") # GitHub org or user
-    name   = optional(string, "ddm-protobuf")   # Repository name
-    branch = optional(string, "main")           # Branch to fetch from
+    owner  = string                   # GitHub org or user (required)
+    name   = string                   # Repository name (required)
+    branch = optional(string, "main") # Branch to fetch from
   })
-  default = {}
 }
 
 variable "labels" {
