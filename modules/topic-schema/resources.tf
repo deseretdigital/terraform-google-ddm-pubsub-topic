@@ -1,15 +1,16 @@
 # ==============================================================================
-# Schema Resources - fetched from ddm-protobuf and created in GCP
+# Schema Resources - fetched from GitHub and created in GCP
 # ==============================================================================
 
 locals {
-  schema_name = "${lower(replace(var.topic_name, "_", "-"))}-schema-${var.schema_config.version}"
+  schema_name       = "${lower(replace(var.topic_name, "_", "-"))}-schema-${var.schema_config.version}"
+  schema_repository = "${var.schema_repository.owner}/${var.schema_repository.name}"
 }
 
-# Fetch the Pub/Sub schema from ddm-protobuf
+# Fetch the Pub/Sub schema from GitHub
 data "github_repository_file" "pubsub_schema" {
-  repository = "ddm-protobuf"
-  branch     = "main"
+  repository = local.schema_repository
+  branch     = var.schema_repository.branch
   file       = var.schema_config.path
 }
 
@@ -61,11 +62,11 @@ locals {
   bigquery_table_ref     = local.bigquery_enabled ? "${google_pubsub_topic.topic.project}.${var.bigquery_config.dataset_id}.${var.bigquery_config.table_id}" : null
 }
 
-# Fetch the BigQuery schema from ddm-protobuf
+# Fetch the BigQuery schema from GitHub
 data "github_repository_file" "bigquery_schema" {
   count      = local.bigquery_enabled ? 1 : 0
-  repository = "ddm-protobuf"
-  branch     = "main"
+  repository = local.schema_repository
+  branch     = var.schema_repository.branch
   file       = var.bigquery_config.schema_path
 }
 

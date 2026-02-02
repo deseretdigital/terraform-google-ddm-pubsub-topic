@@ -4,6 +4,16 @@ variable "project" {
   default     = null
 }
 
+variable "schema_repository" {
+  description = "GitHub repository configuration for fetching schemas."
+  type = object({
+    owner  = optional(string, "deseretdigital") # GitHub org or user
+    name   = optional(string, "ddm-protobuf")   # Repository name
+    branch = optional(string, "main")           # Branch to fetch from
+  })
+  default = {}
+}
+
 variable "labels" {
   description = "A set of key/value label pairs to assign to this Topic."
   type        = map(string)
@@ -36,9 +46,9 @@ variable "message_storage_policy" {
 }
 
 variable "schema_config" {
-  description = "Pub/Sub schema configuration. The module fetches the schema from ddm-protobuf and creates the google_pubsub_schema resource."
+  description = "Pub/Sub schema configuration. The module fetches the schema from the configured GitHub repository and creates the google_pubsub_schema resource."
   type = object({
-    path     = string                     # Path in ddm-protobuf repo, e.g., "pubsub/gen/listing_event/v1/raw_listing_event.pps"
+    path     = string                     # Path in schema repo, e.g., "pubsub/gen/listing_event/v1/raw_listing_event.pps"
     version  = optional(string, "v1")     # Schema version for naming, e.g., "v1"
     encoding = optional(string, "BINARY") # BINARY or JSON
   })
@@ -63,7 +73,7 @@ variable "bigquery_config" {
     dataset_id        = string
     dataset_location  = optional(string, "US")
     table_id          = string
-    schema_path       = string # Path in ddm-protobuf repo, e.g., "bq/gen/listing_event/v1/raw_listing_event.schema"
+    schema_path       = string # Path in schema repo, e.g., "bq/gen/listing_event/v1/raw_listing_event.schema"
     partition_field   = optional(string, null)
     clustering_fields = optional(list(string), [])
   })
