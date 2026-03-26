@@ -43,7 +43,7 @@ output "schema_name" {
 
 output "bigquery_dataset_id" {
   description = "The ID of the BigQuery dataset. Null if BigQuery streaming is not enabled."
-  value       = length(google_bigquery_dataset.dataset) > 0 ? google_bigquery_dataset.dataset[0].dataset_id : null
+  value       = local.bigquery_enabled ? local.resolved_dataset_id : null
 }
 
 output "bigquery_table_id" {

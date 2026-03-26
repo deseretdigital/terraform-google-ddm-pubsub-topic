@@ -75,6 +75,7 @@ variable "bigquery_config" {
     schema_path       = string # Path in schema repo, e.g., "bq/gen/listing_event/v1/raw_listing_event.schema"
     partition_field   = optional(string, null)
     clustering_fields = optional(list(string), [])
+    create_dataset    = optional(bool, true) # Set to false to reference an existing dataset instead of creating one
   })
   default = null
 }
