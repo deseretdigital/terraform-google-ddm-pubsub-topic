@@ -55,11 +55,13 @@ resource "google_pubsub_topic" "topic" {
 
 locals {
   bigquery_enabled       = var.bigquery_config != null
+  create_dataset         = local.bigquery_enabled && var.bigquery_config.create_dataset
   subscription_labels    = var.bigquery_subscription_labels != null ? var.bigquery_subscription_labels : var.labels
   subscription_name      = "${var.topic_name}_BigQuery"
   dead_letter_name       = "${var.topic_name}_DeadLetter"
   pubsub_service_account = var.project_number != null ? "service-${var.project_number}@gcp-sa-pubsub.iam.gserviceaccount.com" : null
   bigquery_table_ref     = local.bigquery_enabled ? "${google_pubsub_topic.topic.project}.${var.bigquery_config.dataset_id}.${var.bigquery_config.table_id}" : null
+  resolved_dataset_id    = local.create_dataset ? google_bigquery_dataset.dataset[0].dataset_id : var.bigquery_config.dataset_id
 }
 
 # Fetch the BigQuery schema from GitHub
@@ -70,9 +72,9 @@ data "github_repository_file" "bigquery_schema" {
   file       = var.bigquery_config.schema_path
 }
 
-# BigQuery Dataset
+# BigQuery Dataset (only created when create_dataset is true; set to false for shared datasets)
 resource "google_bigquery_dataset" "dataset" {
-  count       = local.bigquery_enabled ? 1 : 0
+  count       = local.create_dataset ? 1 : 0
   dataset_id  = var.bigquery_config.dataset_id
   project     = google_pubsub_topic.topic.project
   location    = var.bigquery_config.dataset_location
@@ -83,7 +85,7 @@ resource "google_bigquery_dataset" "dataset" {
 # BigQuery Table
 resource "google_bigquery_table" "table" {
   count               = local.bigquery_enabled ? 1 : 0
-  dataset_id          = google_bigquery_dataset.dataset[0].dataset_id
+  dataset_id          = local.resolved_dataset_id
   table_id            = var.bigquery_config.table_id
   project             = google_pubsub_topic.topic.project
   labels              = local.subscription_labels
