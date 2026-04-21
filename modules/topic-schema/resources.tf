@@ -123,8 +123,8 @@ resource "google_pubsub_subscription" "bigquery" {
   depends_on = [
     google_bigquery_table.table,
     google_pubsub_topic_iam_member.dead_letter_publisher,
-    google_project_iam_member.bigquery_metadata_viewer,
-    google_project_iam_member.bigquery_data_editor
+    google_bigquery_table_iam_member.bigquery_metadata_viewer,
+    google_bigquery_table_iam_member.bigquery_data_editor
   ]
 }
 
@@ -165,18 +165,26 @@ resource "google_pubsub_subscription_iam_member" "bigquery_subscriber" {
   member       = "serviceAccount:${local.pubsub_service_account}"
 }
 
-# IAM: Allow Pub/Sub to read BigQuery table metadata
-resource "google_project_iam_member" "bigquery_metadata_viewer" {
-  count   = local.bigquery_enabled ? 1 : 0
-  project = google_pubsub_topic.topic.project
-  role    = "roles/bigquery.metadataViewer"
-  member  = "serviceAccount:${local.pubsub_service_account}"
+# IAM: Allow Pub/Sub to read BigQuery table metadata.
+# Scoped to the single target table — the service account should not have
+# metadata access to unrelated datasets in the project.
+resource "google_bigquery_table_iam_member" "bigquery_metadata_viewer" {
+  count      = local.bigquery_enabled ? 1 : 0
+  project    = google_bigquery_table.table[0].project
+  dataset_id = google_bigquery_table.table[0].dataset_id
+  table_id   = google_bigquery_table.table[0].table_id
+  role       = "roles/bigquery.metadataViewer"
+  member     = "serviceAccount:${local.pubsub_service_account}"
 }
 
-# IAM: Allow Pub/Sub to write to BigQuery table
-resource "google_project_iam_member" "bigquery_data_editor" {
-  count   = local.bigquery_enabled ? 1 : 0
-  project = google_pubsub_topic.topic.project
-  role    = "roles/bigquery.dataEditor"
-  member  = "serviceAccount:${local.pubsub_service_account}"
+# IAM: Allow Pub/Sub to write to the BigQuery table.
+# Scoped to the single target table — the service account should not have
+# write access to unrelated datasets in the project.
+resource "google_bigquery_table_iam_member" "bigquery_data_editor" {
+  count      = local.bigquery_enabled ? 1 : 0
+  project    = google_bigquery_table.table[0].project
+  dataset_id = google_bigquery_table.table[0].dataset_id
+  table_id   = google_bigquery_table.table[0].table_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${local.pubsub_service_account}"
 }
