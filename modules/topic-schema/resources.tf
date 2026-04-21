@@ -61,7 +61,7 @@ locals {
   dead_letter_name       = "${var.topic_name}_DeadLetter"
   pubsub_service_account = var.project_number != null ? "service-${var.project_number}@gcp-sa-pubsub.iam.gserviceaccount.com" : null
   bigquery_table_ref     = local.bigquery_enabled ? "${google_pubsub_topic.topic.project}.${var.bigquery_config.dataset_id}.${var.bigquery_config.table_id}" : null
-  resolved_dataset_id    = local.create_dataset ? google_bigquery_dataset.dataset[0].dataset_id : var.bigquery_config.dataset_id
+  resolved_dataset_id    = local.bigquery_enabled ? (local.create_dataset ? google_bigquery_dataset.dataset[0].dataset_id : var.bigquery_config.dataset_id) : null
 }
 
 # Fetch the BigQuery schema from GitHub
